@@ -1,0 +1,43 @@
+---
+- name: Import assert.yml
+  ansible.builtin.import_tasks: assert.yml
+  run_once: true
+  delegate_to: localhost
+
+- name: Install requirements
+  become: true
+  ansible.builtin.package:
+    name: bash
+    state: present
+
+- name: "Install package {{ java_openjdk_package }}"
+  become: true
+  ansible.builtin.package:
+    name: "{{ java_openjdk_package }}"
+    state: present
+
+- name: Configure as default java
+  become: true
+  when: java_default_installation
+  block:
+    - name: "Set default java to {{ java_openjdk_alternative }}"
+      ansible.builtin.command:
+        cmd: "alternatives --set java {{ java_openjdk_alternative }}"
+      register: output
+      changed_when: output.rc == 0
+
+    - name: Find JAVA_HOME
+      ansible.builtin.shell:
+        cmd: set -o pipefail ; readlink -f /usr/bin/java | sed 's%/bin/java%%'
+        executable: /bin/bash
+      changed_when: false
+      check_mode: false
+      register: java_home
+
+    - name: Set JAVA_HOME in /etc/environment
+      ansible.builtin.lineinfile:
+        path: /etc/profile.d/java_home.sh
+        regexp: '^export JAVA_HOME='
+        line: 'export JAVA_HOME="{{ java_home.stdout }}"'
+        create: true
+        mode: '0644'

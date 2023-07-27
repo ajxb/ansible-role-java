@@ -1,0 +1,34 @@
+---
+# This part maps a distribution to a version of java.
+_java_default_version:
+  default: 17
+  OracleLinux: 17
+
+java_default_version: "{{ _java_default_version[ansible_distribution ~ '-' ~ ansible_distribution_major_version] | default(_java_default_version[ansible_distribution] | default(_java_default_version[ansible_os_family] | default(_java_default_version['default'] ))) }}"
+
+# This part maps the type of java package (jre/jdk) to a package name
+# for the distribution.
+_java_openjdk_package:
+  jre:
+    8:
+      default: java-1.8.0-openjdk
+      OracleLinux: java-1.8.0-openjdk
+    11:
+      default: java-11-openjdk
+      OracleLinux: java-11-openjdk
+    17:
+      default: java-17-openjdk
+      OracleLinux: java-17-openjdk
+  jdk:
+    8:
+      default: java-1.8.0-openjdk-devel
+      OracleLinux: java-1.8.0-openjdk-devel
+    11:
+      default: java-11-openjdk-devel
+      OracleLinux: java-11-openjdk-devel
+    17:
+      default: java-17-openjdk-devel
+      OracleLinux: java-17-openjdk-devel
+
+java_openjdk_package: "{{ _java_openjdk_package[java_type][java_version | int][ansible_distribution] | default(_java_openjdk_package[java_type][java_version | int]['default'] | default([])) }}"
+java_openjdk_alternative: "{{ _java_openjdk_package['jre'][java_version | int][ansible_distribution] | default(_java_openjdk_package['jre'][java_version | int]['default'] | default([])) }}.{{ ansible_architecture }}"

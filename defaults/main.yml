@@ -1,0 +1,12 @@
+---
+# Set this version of java as the default
+java_default_installation: true
+
+# Set the variable to install the type, valid values are "jre" and "jdk".
+java_type: jre
+
+# Set the version of java, valid values are 8, 11 or 17.
+# By default, the latest available distribution version is used, this is mapped
+# in `vars/main.yml`.
+# By setting java_version, you overwrite this default to your selected version.
+java_version: "{{ java_default_version }}"

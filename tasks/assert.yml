@@ -1,0 +1,24 @@
+---
+- name: assert | Test if supported Linux version
+  ansible.builtin.assert:
+    that:
+      - ansible_distribution in [ 'OracleLinux' ]
+      - ansible_distribution_major_version is version(8, '==')
+    quiet: true
+
+- name: assert | Test if java_type is set correctly
+  ansible.builtin.assert:
+    that:
+      - java_type is defined
+      - java_type is string
+      - java_type in [ "jre", "jdk" ]
+    quiet: true
+
+- name: assert | Test if java_version is set correctly
+  ansible.builtin.assert:
+    that:
+      - java_version | int is integer
+      - java_version | int in [ 8, 11, 17 ]
+    quiet: true
+  when:
+    - java_version is defined
